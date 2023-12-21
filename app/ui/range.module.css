@@ -1,0 +1,92 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 50%;
+  margin: 20px auto;
+}
+
+.labelsContainer {
+  display: flex;
+  align-items: center;
+}
+
+.rangeContainer {
+  flex-grow: 1;
+  position: relative;
+  height: 10px;
+}
+
+.range {
+  position: relative;
+  height: 100%;
+  background-color: #808080;
+  border-radius: 5px;
+}
+
+.bullet {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #2196f3;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.bullet:hover {
+  width: 25px;
+  height: 25px;
+}
+
+.minBullet {
+  left: 0;
+}
+
+.maxBullet {
+  left: 100%;
+}
+
+.labelsContainer {
+  display: flex;
+  align-items: center;
+  margin: 0 20px;
+}
+
+.inputContainer {
+  border: none;
+  width: 4em;
+  background: inherit;
+  text-align: center;
+}
+
+.minLabel,
+.maxLabel {
+  font-size: 14px;
+  margin: 0 20px;
+  width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rangeFill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background-color: #2196f3;
+  z-index: 1;
+}
+
+.rangeFill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: calc((100% - ((minValue - min) / (max - min)) * 100%));
+  height: 100%;
+  background-color: #808080;
+  z-index: 1;
+}
