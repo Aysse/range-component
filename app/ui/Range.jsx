@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styles from './range.module.css';
 
-export default function Range ({ min, max, fixedValue, currency }) {
+export default function Range({ min, max, fixedValue, currency }) {
   const [minValue, setMinValue] = useState(Math.floor(min));
   const [maxValue, setMaxValue] = useState(Math.ceil(max));
   const [dragging, setDragging] = useState(null);
@@ -61,36 +61,50 @@ export default function Range ({ min, max, fixedValue, currency }) {
   };
 
   return (
-        <div className={styles.container}>
-            <div className={styles.labelsContainer}>
-                <input className={styles.inputContainer} value={minValue} type='text' onChange={e => handleValueChange(e, 'min')} />
-                <span className={styles.currency}>{currency}</span>
-            </div>
-            <div className={styles.rangeContainer}>
-                <div className={styles.range} ref={rangeRef}>
-                    <div
-                        className={styles.rangeFill}
-                        style={{
-                          left: `${((minValue - min) / (max - min)) * 100}%`,
-                          width: `${((maxValue - minValue) / (max - min)) * 100}%`
-                        }}
-                    />
-                    <div
-                        className={`${styles.bullet} ${styles.minBullet}`}
-                        style={{ left: `${((minValue - min) / (max - min)) * 100}%` }}
-                        onMouseDown={() => handleMouseDown('min')}
-                    />
-                    <div
-                        className={`${styles.bullet} ${styles.maxBullet}`}
-                        style={{ left: `${((maxValue - min) / (max - min)) * 100}%` }}
-                        onMouseDown={() => handleMouseDown('max')}
-                    />
-                </div>
-            </div>
-            <div className={styles.labelsContainer}>
-                <input className={styles.inputContainer} value={maxValue} type='text' onChange={e => handleValueChange(e, 'max')} />
-                <span className={styles.currency}>{currency}</span>
-            </div>
+    <div data-testid='container' className={styles.container}>
+      <div className={styles.labelsContainer}>
+        <input
+          aria-label='min'
+          className={styles.inputContainer}
+          value={minValue}
+          type='text'
+          onChange={(e) => handleValueChange(e, 'min')}
+        />
+        <span className={styles.currency}>{currency}</span>
+      </div>
+      <div className={styles.rangeContainer}>
+        <div className={styles.range} ref={rangeRef}>
+          <div
+            className={styles.rangeFill}
+            style={{
+              left: `${((minValue - min) / (max - min)) * 100}%`,
+              width: `${((maxValue - minValue) / (max - min)) * 100}%`
+            }}
+          />
+          <div
+            data-testid='min-bullet'
+            className={`${styles.bullet} ${styles.minBullet}`}
+            style={{ left: `${((minValue - min) / (max - min)) * 100}%` }}
+            onMouseDown={() => handleMouseDown('min')}
+          />
+          <div
+            data-testid='max-bullet'
+            className={`${styles.bullet} ${styles.maxBullet}`}
+            style={{ left: `${((maxValue - min) / (max - min)) * 100}%` }}
+            onMouseDown={() => handleMouseDown('max')}
+          />
         </div>
+      </div>
+      <div className={styles.labelsContainer}>
+        <input
+          aria-label='max'
+          className={styles.inputContainer}
+          value={maxValue}
+          type='text'
+          onChange={(e) => handleValueChange(e, 'max')}
+        />
+        <span className={styles.currency}>{currency}</span>
+      </div>
+    </div>
   );
 }
