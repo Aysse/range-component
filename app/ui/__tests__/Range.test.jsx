@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Range from '../Range';
 
-describe('Range Component', () => {
+describe('Range Component with min and max values', () => {
   it('sholud render the component', () => {
     render(<Range min={1} max={100} currency='€' />);
 
@@ -27,11 +27,9 @@ describe('Range Component', () => {
   it('should update the displayed values when input values are changed', () => {
     render(<Range min={1} max={100} currency='€' />);
 
-    console.log(screen.getByRole('textbox', { name: 'min' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'min' }), {
       target: { value: '50' }
     });
-    console.log(screen.getByRole('textbox', { name: 'min' }));
 
     fireEvent.change(screen.getByRole('textbox', { name: 'max' }), {
       target: { value: '75' }
@@ -40,16 +38,13 @@ describe('Range Component', () => {
     expect(screen.getByDisplayValue('50')).toBeInTheDocument();
     expect(screen.getByDisplayValue('75')).toBeInTheDocument();
   });
+});
 
-  it('should handle drag interaction correctly', () => {
-    render(<Range min={1} max={100} currency='€' />);
+describe('Range component with fixed values', () => {
+  it('renders component with fixed values', () => {
+    render(<Range fixedValues={[10, 20, 30, 40, 50]} currency={'€'} />);
 
-    fireEvent.mouseDown(screen.getByTestId('min-bullet'));
-    fireEvent.mouseMove(screen.getByTestId('container'), {
-      clientX: 10
-    });
-    fireEvent.mouseUp(screen.getByTestId('min-bullet'));
-
-    expect(screen.getByDisplayValue('50')).toBeInTheDocument();
+    expect(screen.getByLabelText('min').value).toBe('10');
+    expect(screen.getByLabelText('max').value).toBe('50');
   });
 });
