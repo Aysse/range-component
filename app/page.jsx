@@ -37,7 +37,7 @@ export default function Home () {
     /* TODO: Try Range as a server Component and use Suspense to render a skeleton */
     <main className={styles.main}>
       <Range min={min} max={max} currency={'€'} />
-      {/* <Range fixedValue={[5, 10, 15, 20]} currency={'€'} /> */}
+      <Range fixedValues={[5, 10, 15, 20]} currency={'€'} />
     </main>
   );
 }
