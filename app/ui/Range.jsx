@@ -2,43 +2,43 @@ import React, { useState, useRef, useEffect } from 'react';
 import styles from './range.module.css';
 
 export default function Range ({ min, max, fixedValues, currency }) {
-  const [minRange, setMinRange] = useState(
-    fixedValues ? fixedValues[0] : Math.floor(min)
-  );
-
-  const [maxRange, setMaxRange] = useState(
-    fixedValues ? fixedValues[fixedValues.length - 1] : Math.floor(max)
-  );
-  const [minValue, setMinValue] = useState(
-    fixedValues ? fixedValues[0] : Math.floor(min)
-  );
-  const [maxValue, setMaxValue] = useState(
-    fixedValues ? fixedValues[fixedValues.length - 1] : Math.ceil(max)
-  );
+  const [minValue, setMinValue] = useState(fixedValues ? fixedValues[0] : Math.floor(min));
+  const [maxValue, setMaxValue] = useState(fixedValues ? fixedValues[fixedValues.length - 1] : Math.ceil(max));
   const [dragging, setDragging] = useState(null);
   const rangeRef = useRef(null);
+
+  const calculateValue = (percentage) => {
+    const minRangeValue = min || fixedValues[0];
+    const maxRangeValue = max || fixedValues[fixedValues.length - 1];
+    return minRangeValue + percentage * (maxRangeValue - minRangeValue);
+  };
 
   const handleMouseMove = (e) => {
     if (!dragging) return;
 
     const rect = rangeRef.current.getBoundingClientRect();
     const percentage = (e.clientX - rect.left) / rect.width;
-    const minRangeValue = min || fixedValues[0];
-    const maxRangeValue = max || fixedValues[fixedValues.length - 1];
-    let newValue = minRangeValue + percentage * (maxRangeValue - minRangeValue);
+    let newValue = calculateValue(percentage);
+
+    if ((dragging === 'min' && newValue >= maxValue) || (dragging === 'max' && newValue <= minValue)) {
+      return;
+    }
 
     if (fixedValues) {
       const newIndex = Math.round(percentage * (fixedValues.length - 1));
-      newValue = fixedValues[newIndex];
-    } else {
-      if (dragging === 'min') {
-        newValue = Math.min(Math.floor(newValue), maxValue - 1);
-      } else if (dragging === 'max') {
-        newValue = Math.max(Math.ceil(newValue), minValue + 1);
-      }
 
-      newValue = Math.min(Math.max(newValue, minRangeValue), maxRangeValue);
+      if (dragging === 'min' && fixedValues[newIndex] < maxValue) {
+        newValue = Math.min(fixedValues[newIndex], fixedValues[fixedValues.indexOf(maxValue) - 1]);
+      } else if (dragging === 'max' && fixedValues[newIndex] > minValue) {
+        newValue = Math.max(fixedValues[newIndex], fixedValues[fixedValues.indexOf(minValue) + 1]);
+      } else {
+        return;
+      }
+    } else {
+      newValue = dragging === 'min' ? Math.min(Math.floor(newValue), maxValue - 1) : Math.max(Math.ceil(newValue), minValue + 1);
     }
+
+    newValue = Math.min(Math.max(newValue, min || fixedValues[0]), max || fixedValues[fixedValues.length - 1]);
 
     if (dragging === 'min') {
       setMinValue(newValue);
@@ -50,11 +50,6 @@ export default function Range ({ min, max, fixedValues, currency }) {
   const handleMouseUp = () => {
     setDragging(null);
   };
-
-  useEffect(() => {
-    setMinRange(min || fixedValues[0]);
-    setMaxRange(max || fixedValues[fixedValues.length - 1]);
-  }, []);
 
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove);
@@ -72,8 +67,12 @@ export default function Range ({ min, max, fixedValues, currency }) {
 
   const handleValueChange = (e, label) => {
     if (fixedValues) return;
+
     const newValue = parseInt(e.target.value, 10);
-    if (!isNaN(newValue) && newValue >= minRange && newValue <= maxRange) {
+    const minRangeValue = min || fixedValues[0];
+    const maxRangeValue = max || fixedValues[fixedValues.length - 1];
+
+    if (!isNaN(newValue) && newValue >= minRangeValue && newValue <= maxRangeValue) {
       if (label === 'min') {
         setMinValue(newValue);
       } else if (label === 'max') {
@@ -100,20 +99,24 @@ export default function Range ({ min, max, fixedValues, currency }) {
           <div
             className={styles.rangeFill}
             style={{
-              left: `${((minValue - minRange) / (maxRange - minRange)) * 100}%`,
-              width: `${((maxValue - minValue) / (maxRange - minRange)) * 100}%`
+              left: `${((minValue - (min || fixedValues[0])) / ((max || fixedValues[fixedValues.length - 1]) - (min || fixedValues[0]))) * 100}%`,
+              width: `${((maxValue - minValue) / ((max || fixedValues[fixedValues.length - 1]) - (min || fixedValues[0]))) * 100}%`
             }}
           />
           <div
             data-testid='min-bullet'
             className={`${styles.bullet} ${styles.minBullet}`}
-            style={{ left: `${((minValue - minRange) / (maxRange - minRange)) * 100}%` }}
+            style={{
+              left: `${((minValue - (min || fixedValues[0])) / ((max || fixedValues[fixedValues.length - 1]) - (min || fixedValues[0]))) * 100}%`
+            }}
             onMouseDown={() => handleMouseDown('min')}
           />
           <div
             data-testid='max-bullet'
             className={`${styles.bullet} ${styles.maxBullet}`}
-            style={{ left: `${((maxValue - minRange) / (maxRange - minRange)) * 100}%` }}
+            style={{
+              left: `${((maxValue - (min || fixedValues[0])) / ((max || fixedValues[fixedValues.length - 1]) - (min || fixedValues[0]))) * 100}%`
+            }}
             onMouseDown={() => handleMouseDown('max')}
           />
         </div>
